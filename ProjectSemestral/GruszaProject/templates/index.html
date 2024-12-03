@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Планер дня</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Планер дня</h1>
+    </header>
+    <main>
+        <section id="tasks">
+            <h2>Задачи на день</h2>
+            <ul>
+                <li>Задача 1</li>
+                <li>Задача 2</li>
+                <li>Задача 3</li>
+            </ul>
+        </section>
+
+        <section id="habits">
+            <h2>Привычки</h2>
+            <ul>
+                <li>Привычка 1</li>
+                <li>Привычка 2</li>
+                <li>Привычка 3</li>
+            </ul>
+        </section>
+
+        <section id="notes">
+            <h2>Заметки</h2>
+            <p>Здесь можно записать важные мысли или напоминания.</p>
+        </section>
+    </main>
+</body>
+</html>
+<section id="tasks">
+    <h2>Задачи на день</h2>
+    <form id="taskForm">
+        <input type="text" id="taskInput" placeholder="Введите задачу" required>
+        <button type="submit">Добавить</button>
+    </form>
+    <ul id="taskList">
+        <!-- Список задач будет обновляться динамически -->
+    </ul>
+</section>
+
+<script>
+    // Загрузка задач при загрузке страницы
+    document.addEventListener('DOMContentLoaded', () => {
+        loadTasks();
+
+        const taskForm = document.getElementById('taskForm');
+        taskForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const taskInput = document.getElementById('taskInput');
+            const task = taskInput.value.trim();
+
+            if (task) {
+                // Отправляем задачу на сервер
+                const response = await fetch('/add_task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `task=${encodeURIComponent(task)}`
+                });
+
+                if (response.ok) {
+                    taskInput.value = '';
+                    loadTasks(); // Обновляем список задач
+                } else {
+                    console.error('Ошибка при добавлении задачи');
+                }
+            }
+        });
+    });
+
+    // Загрузка задач с сервера
+    async function loadTasks() {
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = ''; // Очищаем список
+
+        const response = await fetch('/get_tasks');
+        const tasks = await response.json();
+
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.textContent = task[1]; // Используем текст задачи
+            taskList.appendChild(li);
+        });
+    }
+</script>

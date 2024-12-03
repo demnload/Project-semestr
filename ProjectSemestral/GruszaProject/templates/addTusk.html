@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Создание задачи</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Добавить новую задачу</h1>
+        <form action="/add_task" method="POST">
+            <label for="task_name">Название задачи:</label><br>
+            <input type="text" id="task_name" name="task_name" required><br><br>
+
+            <label for="task_description">Описание:</label><br>
+            <textarea id="task_description" name="task_description" required></textarea><br><br>
+
+            <button type="submit">Добавить задачу</button>
+        </form>
+    </div>
+</body>
+</html>

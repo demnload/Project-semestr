@@ -24,16 +24,24 @@
 
         <section id="habits">
             <h2>Привычки</h2>
-            <ul>
-                <li>Привычка 1</li>
-                <li>Привычка 2</li>
-                <li>Привычка 3</li>
+            <form id="habitForm">
+                <input type="text" id="habitInput" placeholder="Введите привычку" required>
+                <button type="submit">Добавить</button>
+            </form>
+            <ul id="habitList">
+                <!-- Список привычек будет обновляться динамически -->
             </ul>
         </section>
 
         <section id="notes">
             <h2>Заметки</h2>
-            <p>Здесь можно записать важные мысли или напоминания.</p>
+            <form id="noteForm">
+                <textarea id="noteInput" placeholder="Введите заметку" required></textarea>
+                <button type="submit">Сохранить</button>
+            </form>
+            <ul id="noteList">
+                <!-- Список заметок будет обновляться динамически -->
+            </ul>
         </section>
     </main>
 
@@ -41,6 +49,8 @@
         // Загрузка задач при загрузке страницы
         document.addEventListener('DOMContentLoaded', () => {
             loadTasks();
+            loadHabits();
+            loadNotes();
 
             const taskForm = document.getElementById('taskForm');
             taskForm.addEventListener('submit', async (e) => {
@@ -49,7 +59,6 @@
                 const task = taskInput.value.trim();
 
                 if (task) {
-                    // Отправляем задачу на сервер
                     const response = await fetch('/add_task', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -64,9 +73,52 @@
                     }
                 }
             });
+
+            const habitForm = document.getElementById('habitForm');
+            habitForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const habitInput = document.getElementById('habitInput');
+                const habit = habitInput.value.trim();
+
+                if (habit) {
+                    const response = await fetch('/add_habit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `habit=${encodeURIComponent(habit)}`
+                    });
+
+                    if (response.ok) {
+                        habitInput.value = '';
+                        loadHabits(); // Обновляем список привычек
+                    } else {
+                        console.error('Ошибка при добавлении привычки');
+                    }
+                }
+            });
+
+            const noteForm = document.getElementById('noteForm');
+            noteForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const noteInput = document.getElementById('noteInput');
+                const note = noteInput.value.trim();
+
+                if (note) {
+                    const response = await fetch('/add_note', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `note=${encodeURIComponent(note)}`
+                    });
+
+                    if (response.ok) {
+                        noteInput.value = '';
+                        loadNotes(); // Обновляем список заметок
+                    } else {
+                        console.error('Ошибка при добавлении заметки');
+                    }
+                }
+            });
         });
 
-        // Загрузка задач с сервера
         async function loadTasks() {
             const taskList = document.getElementById('taskList');
             taskList.innerHTML = ''; // Очищаем список
@@ -76,79 +128,94 @@
 
             tasks.forEach(task => {
                 const li = document.createElement('li');
-                li.textContent = task[1]; // Используем текст задачи
+                li.textContent = task[1];
+
+                // Добавление кнопок для редактирования и удаления
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Редактировать';
+                editButton.onclick = () => editTask(task[0], li);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Удалить';
+                deleteButton.onclick = () => deleteTask(task[0], li);
+
+                li.appendChild(editButton);
+                li.appendChild(deleteButton);
                 taskList.appendChild(li);
             });
+        }
+
+        async function loadHabits() {
+            const habitList = document.getElementById('habitList');
+            habitList.innerHTML = ''; // Очищаем список
+
+            const response = await fetch('/get_habits');
+            const habits = await response.json();
+
+            habits.forEach(habit => {
+                const li = document.createElement('li');
+                li.textContent = habit[1];
+                if (habit[2] === 1) {
+                    li.style.textDecoration = 'line-through'; // Если выполнена
+                }
+                li.addEventListener('click', async () => {
+                    const toggleResponse = await fetch(`/toggle_habit/${habit[0]}`, {
+                        method: 'POST'
+                    });
+                    if (toggleResponse.ok) {
+                        loadHabits(); // Обновляем список привычек
+                    }
+                });
+                habitList.appendChild(li);
+            });
+        }
+
+        async function loadNotes() {
+            const noteList = document.getElementById('noteList');
+            noteList.innerHTML = ''; // Очищаем список
+
+            const response = await fetch('/get_notes');
+            const notes = await response.json();
+
+            notes.forEach(note => {
+                const li = document.createElement('li');
+                li.textContent = note[1];
+                noteList.appendChild(li);
+            });
+        }
+
+        // Редактирование задачи
+        async function editTask(taskId, li) {
+            const newTask = prompt("Введите новый текст задачи:");
+            if (newTask) {
+                const response = await fetch('/edit_task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `task_id=${taskId}&task=${encodeURIComponent(newTask)}`
+                });
+
+                if (response.ok) {
+                    li.textContent = newTask;
+                } else {
+                    console.error('Ошибка при редактировании задачи');
+                }
+            }
+        }
+
+        // Удаление задачи
+        async function deleteTask(taskId, li) {
+            const response = await fetch('/delete_task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `task_id=${taskId}`
+            });
+
+            if (response.ok) {
+                li.remove();
+            } else {
+                console.error('Ошибка при удалении задачи');
+            }
         }
     </script>
 </body>
 </html>
-<ul id="taskList">
-    <!-- Список задач будет обновляться динамически -->
-</ul>
-
-<script>
-    // Загрузка задач при загрузке страницы
-    document.addEventListener('DOMContentLoaded', () => {
-        loadTasks();
-    });
-
-    async function loadTasks() {
-        const taskList = document.getElementById('taskList');
-        taskList.innerHTML = ''; // Очищаем список
-
-        const response = await fetch('/get_tasks');
-        const tasks = await response.json();
-
-        tasks.forEach(task => {
-            const li = document.createElement('li');
-            li.textContent = task[1]; // Используем текст задачи
-
-            // Добавление кнопок для редактирования и удаления
-            const editButton = document.createElement('button');
-            editButton.textContent = 'Редактировать';
-            editButton.onclick = () => editTask(task[0], li);
-
-            const deleteButton = document.createElement('button');
-            deleteButton.textContent = 'Удалить';
-            deleteButton.onclick = () => deleteTask(task[0], li);
-
-            li.appendChild(editButton);
-            li.appendChild(deleteButton);
-            taskList.appendChild(li);
-        });
-    }
-
-    // Редактирование задачи
-    async function editTask(taskId, li) {
-        const newTask = prompt("Введите новый текст задачи:");
-        if (newTask) {
-            const response = await fetch('/edit_task', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: `task_id=${taskId}&task=${encodeURIComponent(newTask)}`
-            });
-
-            if (response.ok) {
-                li.textContent = newTask;
-            } else {
-                console.error('Ошибка при редактировании задачи');
-            }
-        }
-    }
-
-    // Удаление задачи
-    async function deleteTask(taskId, li) {
-        const response = await fetch('/delete_task', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: `task_id=${taskId}`
-        });
-
-        if (response.ok) {
-            li.remove();
-        } else {
-            console.error('Ошибка при удалении задачи');
-        }
-    }
-</script>

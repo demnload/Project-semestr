@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Планер дня</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+
+    </style>
 </head>
 <body>
     <header>
@@ -28,6 +31,12 @@
                 <input type="text" id="habitInput" placeholder="Введите привычку" required>
                 <button type="submit">Добавить</button>
             </form>
+
+            <!-- Прогресс-бар для привычек -->
+            <div id="habitProgressContainer">
+                <div id="habitProgressBar"></div>
+            </div>
+
             <ul id="habitList">
                 <!-- Список привычек будет обновляться динамически -->
             </ul>
@@ -147,16 +156,20 @@
 
         async function loadHabits() {
             const habitList = document.getElementById('habitList');
+            const habitProgressBar = document.getElementById('habitProgressBar');
             habitList.innerHTML = ''; // Очищаем список
 
             const response = await fetch('/get_habits');
             const habits = await response.json();
+
+            let completedHabits = 0;
 
             habits.forEach(habit => {
                 const li = document.createElement('li');
                 li.textContent = habit[1];
                 if (habit[2] === 1) {
                     li.style.textDecoration = 'line-through'; // Если выполнена
+                    completedHabits++;
                 }
                 li.addEventListener('click', async () => {
                     const toggleResponse = await fetch(`/toggle_habit/${habit[0]}`, {
@@ -168,6 +181,10 @@
                 });
                 habitList.appendChild(li);
             });
+
+            // Обновляем прогресс-бар
+            const progressPercentage = habits.length > 0 ? (completedHabits / habits.length) * 100 : 0;
+            habitProgressBar.style.width = progressPercentage + '%';
         }
 
         async function loadNotes() {

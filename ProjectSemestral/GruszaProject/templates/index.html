@@ -127,20 +127,53 @@
 
             tasks.forEach(task => {
                 const li = document.createElement('li');
-                li.textContent = task[1];
+                const textSpan = document.createElement('span');
+                textSpan.textContent = task[1];
 
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Редактировать';
-                editButton.onclick = () => editTask(task[0], li);
+                editButton.onclick = () => editTask(task[0], textSpan);
 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Удалить';
-                deleteButton.onclick = () => deleteTask(task[0], li);
+                deleteButton.onclick = () => deleteTask(task[0]);
 
+                li.appendChild(textSpan);
                 li.appendChild(editButton);
                 li.appendChild(deleteButton);
                 taskList.appendChild(li);
             });
+        }
+
+        async function editTask(taskId, textSpan) {
+            const newTask = prompt("Введите новый текст задачи:", textSpan.textContent);
+            if (newTask) {
+                const response = await fetch('/edit_task', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `task_id=${taskId}&task=${encodeURIComponent(newTask)}`
+                });
+
+                if (response.ok) {
+                    textSpan.textContent = newTask;
+                } else {
+                    console.error('Ошибка при редактировании задачи');
+                }
+            }
+        }
+
+        async function deleteTask(taskId) {
+            const response = await fetch('/delete_task', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `task_id=${taskId}`
+            });
+
+            if (response.ok) {
+                loadTasks();
+            } else {
+                console.error('Ошибка при удалении задачи');
+            }
         }
 
         async function loadHabits() {
@@ -184,41 +217,53 @@
 
             notes.forEach(note => {
                 const li = document.createElement('li');
-                li.textContent = note[1];
+                const textSpan = document.createElement('span');
+                textSpan.textContent = note[1];
 
                 const editButton = document.createElement('button');
                 editButton.textContent = 'Редактировать';
-                editButton.onclick = () => editNotePrompt(note[0]);
+                editButton.onclick = () => editNotePrompt(note[0], textSpan);
 
                 const deleteButton = document.createElement('button');
                 deleteButton.textContent = 'Удалить';
                 deleteButton.onclick = () => deleteNotePrompt(note[0]);
 
+                li.appendChild(textSpan);
                 li.appendChild(editButton);
                 li.appendChild(deleteButton);
                 noteList.appendChild(li);
             });
         }
 
-        async function editNotePrompt(index) {
-            const newNote = prompt("Редактировать заметку:");
+        async function editNotePrompt(index, textSpan) {
+            const newNote = prompt("Редактировать заметку:", textSpan.textContent);
             if (newNote) {
-                await fetch('/edit_note', {
+                const response = await fetch('/edit_note', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `note_index=${index}&note=${encodeURIComponent(newNote)}`
                 });
-                loadNotes();
+
+                if (response.ok) {
+                    textSpan.textContent = newNote;
+                } else {
+                    console.error('Ошибка при редактировании заметки');
+                }
             }
         }
 
         async function deleteNotePrompt(index) {
-            await fetch('/delete_note', {
+            const response = await fetch('/delete_note', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `note_index=${index}`
             });
-            loadNotes();
+
+            if (response.ok) {
+                loadNotes();
+            } else {
+                console.error('Ошибка при удалении заметки');
+            }
         }
     </script>
 </body>

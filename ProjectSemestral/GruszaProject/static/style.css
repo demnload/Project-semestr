@@ -64,6 +64,23 @@ form button:hover {
     background-color: #e65c00; /* темный оранжевый при наведении */
 }
 
+/* Таймер */
+#timerControls button {
+    margin: 0 5px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #ff6600; /* оранжевый цвет */
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#timerControls button:hover {
+    background-color: #e65c00; /* темный оранжевый при наведении */
+}
+
 /* Список элементов */
 ul {
     list-style: none;
@@ -99,3 +116,4 @@ li:hover {
     background-color: #ff6600; /* оранжевый прогресс */
     border-radius: 5px;
     transition: width 0.3s ease;
+}

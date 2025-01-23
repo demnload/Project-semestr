@@ -20,6 +20,34 @@
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        /* Стили для таймера */
+        #timer {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #timerDisplay {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #timerControls button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        #timerControls button:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -65,6 +93,16 @@
 
         <!-- Часы -->
         <div id="clock"></div>
+
+        <!-- Таймер -->
+        <div id="timer">
+            <div id="timerDisplay">00:00:00</div>
+            <div id="timerControls">
+                <button id="startTimer">Старт</button>
+                <button id="pauseTimer">Пауза</button>
+                <button id="resetTimer">Сброс</button>
+            </div>
+        </div>
     </main>
 
     <script>
@@ -83,6 +121,53 @@
             }
             setInterval(updateClock, 1000);
             updateClock();
+
+            // Таймер
+            let timerInterval;
+            let timerSeconds = 0;
+            let isRunning = false;
+
+            const timerDisplay = document.getElementById('timerDisplay');
+            const startButton = document.getElementById('startTimer');
+            const pauseButton = document.getElementById('pauseTimer');
+            const resetButton = document.getElementById('resetTimer');
+
+            function updateTimerDisplay() {
+                const hours = String(Math.floor(timerSeconds / 3600)).padStart(2, '0');
+                const minutes = String(Math.floor((timerSeconds % 3600) / 60)).padStart(2, '0');
+                const seconds = String(timerSeconds % 60).padStart(2, '0');
+                timerDisplay.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+
+            function startTimer() {
+                if (!isRunning) {
+                    isRunning = true;
+                    timerInterval = setInterval(() => {
+                        timerSeconds++;
+                        updateTimerDisplay();
+                    }, 1000);
+                }
+            }
+
+            function pauseTimer() {
+                if (isRunning) {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                }
+            }
+
+            function resetTimer() {
+                clearInterval(timerInterval);
+                timerSeconds = 0;
+                isRunning = false;
+                updateTimerDisplay();
+            }
+
+            startButton.addEventListener('click', startTimer);
+            pauseButton.addEventListener('click', pauseTimer);
+            resetButton.addEventListener('click', resetTimer);
+
+            updateTimerDisplay(); // Инициализация отображения таймера
 
             document.getElementById('taskForm').addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -295,6 +380,7 @@
                 console.error('Ошибка при удалении заметки');
             }
         }
+
     </script>
 </body>
 </html>

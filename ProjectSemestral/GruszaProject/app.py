@@ -1,19 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify
 import sqlite3
 
 app = Flask(__name__)
 
 # Инициализация базы данных
-def init_db():
-    with sqlite3.connect('planner.db') as conn:
-        cursor = conn.cursor()
-        cursor.execute('''
-            CREATE TABLE IF NOT EXISTS tasks (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                task TEXT NOT NULL
-            )
-        ''')
-
 def init_db():
     with sqlite3.connect('planner.db') as conn:
         cursor = conn.cursor()
@@ -30,6 +20,7 @@ def init_db():
                 completed BOOLEAN NOT NULL CHECK (completed IN (0, 1))
             )
         ''')
+
 @app.route('/get_habits', methods=['GET'])
 def get_habits():
     with sqlite3.connect('planner.db') as conn:
@@ -59,6 +50,7 @@ def toggle_habit(habit_id):
             cursor.execute('UPDATE habits SET completed = ? WHERE id = ?', (new_status, habit_id))
             return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'Habit not found!'}), 404
+
 @app.route('/')
 def home():
     return render_template('index.html')
@@ -101,17 +93,43 @@ def delete_task():
             cursor.execute('DELETE FROM tasks WHERE id = ?', (task_id,))
         return jsonify({'success': True})
     return jsonify({'success': False, 'error': 'Task ID missing!'}), 400
+
 notes = []
+
 @app.route('/add_note', methods=['POST'])
 def add_note():
-    note = request.form['note']
-    notes.append(note)
-    return 'Заметка добавлена', 200
+    note = request.form.get('note')
+    if note:
+        notes.append(note)
+        return jsonify({'success': True, 'message': 'Заметка добавлена'})
+    return jsonify({'success': False, 'error': 'Текст заметки отсутствует'}), 400
 
 @app.route('/get_notes', methods=['GET'])
 def get_notes():
     return jsonify([[index, note] for index, note in enumerate(notes)])
 
+@app.route('/edit_note', methods=['POST'])
+def edit_note():
+    try:
+        note_index = int(request.form.get('note_index'))
+        new_note = request.form.get('note')
+        if 0 <= note_index < len(notes) and new_note:
+            notes[note_index] = new_note
+            return jsonify({'success': True, 'message': f'Заметка обновлена: "{new_note}"'})
+        return jsonify({'success': False, 'error': 'Неверный индекс заметки или пустой текст'}), 400
+    except (ValueError, TypeError):
+        return jsonify({'success': False, 'error': 'Индекс заметки должен быть числом'}), 400
+
+@app.route('/delete_note', methods=['POST'])
+def delete_note():
+    try:
+        note_index = int(request.form.get('note_index'))
+        if 0 <= note_index < len(notes):
+            deleted_note = notes.pop(note_index)
+            return jsonify({'success': True, 'message': f'Заметка "{deleted_note}" удалена'})
+        return jsonify({'success': False, 'error': 'Неверный индекс заметки'}), 400
+    except (ValueError, TypeError):
+        return jsonify({'success': False, 'error': 'Индекс заметки должен быть числом'}), 400
 
 if __name__ == '__main__':
     init_db()

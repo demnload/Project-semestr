@@ -5,6 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Планер дня</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Стили для часов */
+        #clock {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            font-family: 'Arial', sans-serif;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f9f9f9;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
     <header>
@@ -46,6 +62,9 @@
                 <!-- Список заметок будет обновляться динамически -->
             </ul>
         </section>
+
+        <!-- Часы -->
+        <div id="clock"></div>
     </main>
 
     <script>
@@ -53,6 +72,17 @@
             loadTasks();
             loadHabits();
             loadNotes();
+
+            // Часы
+            function updateClock() {
+                const now = new Date();
+                const hours = String(now.getHours()).padStart(2, '0');
+                const minutes = String(now.getMinutes()).padStart(2, '0');
+                const seconds = String(now.getSeconds()).padStart(2, '0');
+                document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
+            }
+            setInterval(updateClock, 1000);
+            updateClock();
 
             document.getElementById('taskForm').addEventListener('submit', async (e) => {
                 e.preventDefault();

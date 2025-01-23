@@ -1,38 +1,15 @@
-form {
-    margin-bottom: 20px;
-}
-
-form input[type="text"] {
-    padding: 10px;
-    width: 70%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    margin-right: 10px;
-}
-
-form button {
-    padding: 10px 20px;
-    background-color: #7e4caf;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-form button:hover {
-    background-color: #6a3a91;
-}
-
+/* Общие стили для страницы */
 body {
     font-family: Arial, sans-serif;
-    background-color: #f4f4f9;
-    color: #333;
+    background-color: #121212; /* черный фон */
+    color: #f5f5f5; /* светлый текст для контраста */
     margin: 0;
     padding: 0;
 }
 
+/* Заголовок */
 header {
-    background-color: #7e4caf;
+    background-color: #ff6600; /* оранжевый цвет */
     color: white;
     text-align: center;
     padding: 10px 0;
@@ -42,25 +19,52 @@ h1 {
     font-size: 2.5em;
 }
 
+/* Основная секция */
 main {
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
-    background-color: white;
+    background-color: #1e1e1e; /* темный фон для контейнера */
     border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
+/* Подзаголовки */
 h2 {
     font-size: 1.8em;
-    color: #7f4caf;
+    color: #ff6600; /* оранжевый цвет */
     margin-bottom: 10px;
 }
 
-section {
-    margin-bottom: 30px;
+/* Формы */
+form {
+    margin-bottom: 20px;
 }
 
+form input[type="text"] {
+    padding: 10px;
+    width: 70%;
+    border: 1px solid #ff6600; /* оранжевый бордер */
+    border-radius: 5px;
+    margin-right: 10px;
+    background-color: #333; /* темный фон для ввода */
+    color: white; /* белый текст */
+}
+
+form button {
+    padding: 10px 20px;
+    background-color: #ff6600; /* оранжевая кнопка */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+form button:hover {
+    background-color: #e65c00; /* темный оранжевый при наведении */
+}
+
+/* Список элементов */
 ul {
     list-style: none;
     padding-left: 0;
@@ -68,28 +72,30 @@ ul {
 }
 
 li {
-    background-color: #d3ccdc;
+    background-color: #2c2c2c; /* темно-серый фон для элементов */
     padding: 10px;
     margin: 5px 0;
     border-radius: 5px;
     transition: all 0.3s ease;
+    color: white; /* белый текст */
 }
 
 li:hover {
-    background-color: #efefef;
+    background-color: #3a3a3a; /* немного светлее при наведении */
 }
-/* Стили для прогресс-бара */
-        #habitProgressContainer {
-            width: 100%;
-            background-color: #f3f3f3;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
 
-        #habitProgressBar {
-            width: 0;
-            height: 20px;
-            background-color: #4caf50;
-            border-radius: 5px;
-            transition: width 0.3s ease;
+/* Прогресс-бар для привычек */
+#habitProgressContainer {
+    width: 100%;
+    background-color: #333; /* темный фон */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 10px;
+}
+
+#habitProgressBar {
+    width: 0;
+    height: 20px;
+    background-color: #ff6600; /* оранжевый прогресс */
+    border-radius: 5px;
+    transition: width 0.3s ease;
